@@ -148,3 +148,11 @@ class MyTestClass:
 - [x] **Phase 1**: Standalone plugin with bridge, driver, and decorators.
 - [ ] **Phase 2**: Align APIs and write comprehensive unit tests.
 - [ ] **Phase 3**: Integrate `FlutterStaticChecker` and `FlutterScriptDriver` into **Kea2**.
+
+---
+
+## 🤝 Acknowledgments & Credits
+
+- [uiautomator2](https://github.com/openatx/uiautomator2) - The underlying Android UI automation engine used.
+- [u2_webview](https://github.com/openatx/u2_webview) - The Flask-extension pattern that inspired this plugin architecture.
+

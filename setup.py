@@ -6,7 +6,7 @@ setup(
     description="Flutter driver plugin for uiautomator2 - find and interact with Flutter widgets",
     long_description=open("README.md").read() if open("README.md") else "",
     long_description_content_type="text/markdown",
-    author="assassinaj602",
+    author="Muhammad Assad Ullah",
     url="https://github.com/assassinaj602/u2_flutter",
     packages=find_packages(),
     install_requires=[
