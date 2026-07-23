@@ -144,8 +144,8 @@ class MyTestClass:
 ## 🛣️ Roadmap
 
 - [x] **Phase 1**: Standalone plugin with bridge, driver, and decorators.
-- [ ] **Phase 2**: Align APIs and write comprehensive unit tests.
-- [ ] **Phase 3**: Integrate `FlutterStaticChecker` and `FlutterScriptDriver` into **Kea2**.
+- [x] **Phase 2**: Align APIs and write comprehensive unit tests.
+- [/] **Phase 3**: Integrate `FlutterStaticChecker` and `FlutterScriptDriver` into **Kea2**.
 
 ---
 
