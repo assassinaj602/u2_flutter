@@ -1,10 +1,11 @@
+import os
 from setuptools import setup, find_packages
 
 setup(
     name="u2-flutter",
     version="0.1.0",
     description="Flutter driver plugin for uiautomator2 - find and interact with Flutter widgets",
-    long_description=open("README.md").read() if open("README.md") else "",
+    long_description=open("README.md", encoding="utf-8").read() if os.path.exists("README.md") else "",
     long_description_content_type="text/markdown",
     author="Muhammad Assad Ullah",
     url="https://github.com/assassinaj602/u2_flutter",
