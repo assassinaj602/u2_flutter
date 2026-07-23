@@ -21,10 +21,23 @@ class FlutterElement:
         self.driver.enter_text(self.finder, text)
         return self
 
+    def get_text(self) -> str:
+        """Get the text of this widget (method wrapper)."""
+        return self.text
+
     @property
     def text(self) -> str:
         """Get the text of this widget."""
         return self.driver.get_text(self.finder)
+
+    def __len__(self):
+        # Fallback length for list-like compatibility in tests
+        return 1
+
+    def __getitem__(self, index):
+        if index == 0:
+            return self
+        raise IndexError("FlutterElement index out of range")
 
 
 class Flutter:

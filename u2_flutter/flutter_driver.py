@@ -1,5 +1,7 @@
+import time
 import json
 import logging
+import websocket
 from typing import Dict, Any
 
 logger = logging.getLogger("u2_flutter.driver")
@@ -18,7 +20,7 @@ class FlutterDriver:
 
     def _send_rpc(self, method: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Sends a JSON-RPC request over the WebSocket.
+        Sends a JSON-RPC request over the WebSocket with automatic retries on timeout.
         """
         if not self.bridge.ws:
             raise RuntimeError("Not attached to Flutter VM Service. Call attach() first.")
@@ -35,9 +37,20 @@ class FlutterDriver:
         
         request_str = json.dumps(payload)
         logger.debug(f"Sending JSON-RPC Request: {request_str}")
-        self.bridge.ws.send(request_str)
         
-        response_str = self.bridge.ws.recv()
+        response_str = ""
+        for attempt in range(3):
+            try:
+                self.bridge.ws.send(request_str)
+                response_str = self.bridge.ws.recv()
+                break
+            except (websocket.WebSocketTimeoutException, TimeoutError) as e:
+                if attempt == 2:
+                    logger.error(f"WebSocket operation timed out after 3 attempts: {e}")
+                    raise RuntimeError(f"WebSocket operation timed out: {e}")
+                logger.warning(f"WebSocket recv timed out, retrying attempt {attempt + 2}...")
+                time.sleep(1)
+                
         logger.debug(f"Received JSON-RPC Response: {response_str}")
         
         response = json.loads(response_str)
