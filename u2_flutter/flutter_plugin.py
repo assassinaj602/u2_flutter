@@ -39,6 +39,15 @@ class FlutterElement:
             return self
         raise IndexError("FlutterElement index out of range")
 
+    def scroll(self, dx: int, dy: int, duration_ms: int = 500):
+        """Scrolls this widget."""
+        self.driver.scroll(self.finder, dx, dy, duration_ms)
+        return self
+
+    def wait_for(self, timeout_ms: int = 5000) -> bool:
+        """Waits for this widget to appear."""
+        return self.driver.wait_for(self.finder, timeout_ms)
+
 
 class Flutter:
     def __init__(self, device, local_port: int = 8181):
@@ -104,6 +113,15 @@ class Flutter:
         Returns the cached widget tree or None.
         """
         return self.driver.get_cached_tree()
+
+    def scroll(self, finder: dict, dx: int, dy: int, duration_ms: int = 500):
+        """Scrolls the target widget."""
+        self.driver.scroll(finder, dx, dy, duration_ms)
+        return self
+
+    def wait_for(self, finder: dict, timeout_ms: int = 5000) -> bool:
+        """Waits for the target widget to appear."""
+        return self.driver.wait_for(finder, timeout_ms)
 
 
 def with_flutter(local_port: int = 8181):

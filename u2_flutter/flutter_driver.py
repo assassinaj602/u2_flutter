@@ -188,3 +188,30 @@ class FlutterDriver:
     def get_cached_tree(self):
         """Returns the cached widget tree or None if not cached."""
         return getattr(self, '_cached_tree', None)
+
+    def scroll(self, finder: Dict[str, Any], dx: int, dy: int, duration_ms: int = 500):
+        """
+        Scrolls the widget found by the given finder.
+        """
+        logger.info(f"Scrolling widget: {finder} by dx: {dx}, dy: {dy}")
+        params = {
+            "dx": dx,
+            "dy": dy,
+            "duration": duration_ms * 1000  # Convert to microseconds
+        }
+        self._send_driver_command("scroll", finder, params)
+
+    def wait_for(self, finder: Dict[str, Any], timeout_ms: int = 5000):
+        """
+        Waits for the widget found by the given finder to appear.
+        """
+        logger.info(f"Waiting for widget: {finder}")
+        params = {
+            "timeout": timeout_ms * 1000  # Convert to microseconds
+        }
+        try:
+            self._send_driver_command("waitFor", finder, params)
+            return True
+        except Exception as e:
+            logger.warning(f"Error waiting for widget: {e}")
+            return False
