@@ -35,6 +35,10 @@ class FlutterAppTest:
         if not os.path.exists(APK_PATH):
             raise FileNotFoundError(f"Could not find APK at {APK_PATH}. Run 'flutter build apk --debug' first.")
             
+        logger.info("Waking screen and unlocking...")
+        self.d.screen_on()
+        self.d.unlock()
+
         logger.info(f"Installing {APK_PATH}...")
         self.d.app_install(APK_PATH)
         
