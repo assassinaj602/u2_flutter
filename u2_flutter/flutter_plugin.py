@@ -87,6 +87,24 @@ class Flutter:
         finder = self.driver.find_by_type(widget_type)
         return FlutterElement(self.driver, finder)
 
+    def get_diagnostics_tree(self, finder: Optional[dict] = None, subtree_depth=99, include_properties=True) -> dict:
+        """
+        Fetch the diagnostics tree from the Flutter app.
+        """
+        return self.driver.get_diagnostics_tree(finder=finder, subtree_depth=subtree_depth, include_properties=include_properties)
+
+    def cache_widget_tree(self) -> dict:
+        """
+        Fetches and caches the full widget tree in memory.
+        """
+        return self.driver.cache_widget_tree()
+
+    def get_cached_tree(self) -> Optional[dict]:
+        """
+        Returns the cached widget tree or None.
+        """
+        return self.driver.get_cached_tree()
+
 
 def with_flutter(local_port: int = 8181):
     """

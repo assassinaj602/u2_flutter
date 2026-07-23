@@ -17,6 +17,7 @@ class FlutterDriver:
         self.bridge = bridge
         self._next_id = 1
         self._isolate_id = None
+        self._cached_tree = None
 
     def _send_rpc(self, method: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -64,9 +65,10 @@ class FlutterDriver:
         Helper method to send a command to ext.flutter.driver.
         """
         params = {
-            "command": command,
-            **finder
+            "command": command
         }
+        if finder:
+            params.update(finder)
         if extra_params:
             params.update(extra_params)
             
@@ -145,3 +147,44 @@ class FlutterDriver:
         result = self._send_driver_command("get_text", finder)
         response_data = result.get("response", {})
         return response_data.get("text", "")
+
+    def get_diagnostics_tree(self, finder: Dict[str, Any] = None, subtree_depth=99, include_properties=True):
+        """
+        Fetches the diagnostics tree from the Flutter app.
+        
+        Args:
+            finder (dict): Finder for the target widget to dump diagnostics for. Defaults to MyApp.
+            subtree_depth (int): How deep to traverse the tree
+            include_properties (bool): Include widget properties
+        
+        Returns:
+            dict: The JSON tree structure with DiagnosticableTreeNode objects
+        """
+        logger.info("Fetching diagnostics tree from Flutter app...")
+        if finder is None:
+            finder = self.find_by_type("MyApp")
+        params = {
+            "subtreeDepth": subtree_depth,
+            "includeProperties": include_properties,
+            "diagnosticsType": "widget"
+        }
+        result = self._send_driver_command("get_diagnostics_tree", finder, params)
+        response_data = result.get("response", {})
+        if isinstance(response_data, str):
+            try:
+                return json.loads(response_data)
+            except json.JSONDecodeError:
+                pass
+        return response_data
+
+    def cache_widget_tree(self):
+        """
+        Fetches and caches the full widget tree in memory.
+        Returns the cached tree for immediate use.
+        """
+        self._cached_tree = self.get_diagnostics_tree()
+        return self._cached_tree
+
+    def get_cached_tree(self):
+        """Returns the cached widget tree or None if not cached."""
+        return getattr(self, '_cached_tree', None)
