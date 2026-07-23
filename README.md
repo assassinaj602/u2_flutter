@@ -11,17 +11,15 @@ A standalone Python package and plugin for `uiautomator2` designed to find, insp
 
 ---
 
-## 🛠️ Current Status (Phase 1 Prototype: Working!)
+## 🛠️ Status: Phase 1 & 2 Completed (Phase 3 Integration in Progress)
 
-We have successfully built and verified the core standalone implementation.
+We have successfully built and verified the core standalone implementation and Pytest unit test suite.
 
 - **WebSocket connection over ADB**: Parses the modern Flutter VM auth token automatically from `logcat` to bypass `403 Forbidden` restriction.
-- **Fluent & Chainable Element API**: Interact with widgets easily using patterns like:
-  ```python
-  self.flutter.find_by_key("submit_btn").tap()
-  ```
-- **Lifecycle Decorator**: Managed connection state using `@with_flutter` to guarantee automated attach and detach logic even when tests fail.
+- **Fluent & Chainable Element API**: Interact with widgets easily using patterns like `self.flutter.find_by_key("submit_btn").tap()`.
+- **Lifecycle Decorator**: Managed connection state using `@with_flutter` to guarantee automated attach and detach logic.
 - **Isolate ID Caching**: Minimizes unnecessary VM queries, caching the Isolate ID for fast execution.
+- **Diagnostics Tree Caching (Phase 3)**: Fetches and caches the full Widget diagnostics tree (`get_diagnostics_tree()` & `cache_widget_tree()`) for fast static checker lookups.
 
 ---
 
