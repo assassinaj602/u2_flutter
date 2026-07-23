@@ -14,6 +14,7 @@ class FlutterDriver:
         """
         self.bridge = bridge
         self._next_id = 1
+        self._isolate_id = None
 
     def _send_rpc(self, method: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -56,11 +57,7 @@ class FlutterDriver:
         if extra_params:
             params.update(extra_params)
             
-        # Flutter driver extension is registered under 'ext.flutter.driver'
-        # But we need to query isolate ID first if needed. Usually VM service accepts it globally or requires 'isolateId'
-        # Let's get the main isolate ID if needed. But standard Flutter driver extensions can often be invoked directly.
-        # However, to be highly compatible, we query the isolate list first if isolateId is required.
-        # Let's check if we can obtain isolateId dynamically.
+        # Get the isolate ID dynamically
         isolate_id = self._get_main_isolate_id()
         params["isolateId"] = isolate_id
         
@@ -70,13 +67,17 @@ class FlutterDriver:
         """
         Retrieves the main isolate ID from the VM.
         """
+        if self._isolate_id:
+            return self._isolate_id
+            
         # Call 'getVM' to list isolates
         vm_info = self._send_rpc("getVM", {})
         isolates = vm_info.get("isolates", [])
         if not isolates:
             raise RuntimeError("No isolates found in Dart VM.")
         # Return the first isolate ID (usually the main running app)
-        return isolates[0]["id"]
+        self._isolate_id = isolates[0]["id"]
+        return self._isolate_id
 
     def find_by_key(self, key: str) -> Dict[str, Any]:
         """
@@ -120,13 +121,14 @@ class FlutterDriver:
         logger.info(f"Entering text '{text}' into widget: {finder}")
         # First focus/tap the textfield
         self.tap(finder)
-        # Then send setInputText command
-        self._send_driver_command("setInputText", finder, {"text": text})
+        # Then send enter_text command
+        self._send_driver_command("enter_text", finder, {"text": text})
 
     def get_text(self, finder: Dict[str, Any]) -> str:
         """
         Retrieves the text of the widget found by the given finder.
         """
         logger.info(f"Getting text from widget: {finder}")
-        result = self._send_driver_command("getText", finder)
-        return result.get("text", "")
+        result = self._send_driver_command("get_text", finder)
+        response_data = result.get("response", {})
+        return response_data.get("text", "")

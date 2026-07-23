@@ -3,7 +3,7 @@ import time
 import logging
 import websocket
 import adbutils
-from typing import Optional
+from typing import Optional, Tuple
 
 logger = logging.getLogger("u2_flutter.bridge")
 
@@ -19,37 +19,37 @@ class FlutterBridge:
         self.device = device
         self.local_port = local_port
         self.remote_port: Optional[int] = None
+        self.auth_token: Optional[str] = None
         self.ws: Optional[websocket.WebSocket] = None
         
         # Extract serial if available, or fall back to default
         self.serial = getattr(device, "_serial", None) or getattr(device, "serial", None)
         self.adb = adbutils.adb.device(serial=self.serial) if self.serial else adbutils.adb
 
-    def find_observatory_port(self) -> int:
+    def find_observatory_info(self) -> Tuple[int, str]:
         """
-        Finds the Dart VM Service / Observatory port from the device logcat.
+        Finds the Dart VM Service port and auth token from device logcat.
         
         Returns:
-            int: The remote VM service port.
+            Tuple[int, str]: The remote VM service port and the auth token.
         """
         logger.info("Scanning logcat for Dart VM Service URI...")
-        # Clear logcat first or read the recent logs
-        # We search logcat for the listening address
         logcat_lines = self.device.shell("logcat -d").output
         
-        # Matches patterns like:
-        # "The Dart VM service is listening on http://127.0.0.1:61234/..."
-        # "Observatory listening on http://127.0.0.1:61234/..."
-        pattern = re.compile(r"(?:The Dart VM service is listening on|Observatory listening on)\s+http://127.0.0.1:(\d+)/")
+        # Updated regex to capture both port AND optional auth token path
+        # Example: http://127.0.0.1:42769/aBcDeFg1234=/
+        pattern = re.compile(
+            r"(?:The Dart VM service is listening on|Observatory listening on)\s+http://127.0.0.1:(\d+)(?:/([a-zA-Z0-9_\-=]+)/?)?"
+        )
         
         for line in reversed(logcat_lines.splitlines()):
             match = pattern.search(line)
             if match:
                 port = int(match.group(1))
-                logger.info(f"Found Dart VM Service port: {port}")
-                return port
+                token = match.group(2) or ""
+                logger.info(f"Found Dart VM Service port: {port}, auth token: '{token}'")
+                return port, token
                 
-        # If not found in logcat immediately, wait/check again
         raise RuntimeError("Could not find Dart VM Service port in logcat. Make sure the Flutter app is running in debug or profile mode.")
 
     def forward_port(self, remote_port: int):
@@ -76,15 +76,20 @@ class FlutterBridge:
 
     def attach(self) -> str:
         """
-        Finds the VM service port, forwards it, and connects via WebSocket.
+        Finds the VM service port and auth token, forwards it, and connects via WebSocket.
         
         Returns:
             str: The WebSocket URL.
         """
-        self.remote_port = self.find_observatory_port()
+        self.remote_port, self.auth_token = self.find_observatory_info()
         self.forward_port(self.remote_port)
         
-        ws_url = f"ws://127.0.0.1:{self.local_port}/ws"
+        # Append auth token to ws URL if present
+        if self.auth_token:
+            ws_url = f"ws://127.0.0.1:{self.local_port}/{self.auth_token}/ws"
+        else:
+            ws_url = f"ws://127.0.0.1:{self.local_port}/ws"
+            
         logger.info(f"Connecting to WebSocket VM Service: {ws_url}")
         
         # Attempt WebSocket connection with retries
@@ -117,3 +122,4 @@ class FlutterBridge:
                 
         self.remove_forward()
         self.remote_port = None
+        self.auth_token = None
