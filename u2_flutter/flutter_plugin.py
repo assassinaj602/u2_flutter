@@ -1,0 +1,107 @@
+import functools
+import logging
+from typing import Optional
+from .flutter_bridge import FlutterBridge
+from .flutter_driver import FlutterDriver
+
+logger = logging.getLogger("u2_flutter.plugin")
+
+class FlutterElement:
+    def __init__(self, driver: FlutterDriver, finder: dict):
+        self.driver = driver
+        self.finder = finder
+
+    def tap(self):
+        """Tap this widget."""
+        self.driver.tap(self.finder)
+        return self
+
+    def enter_text(self, text: str):
+        """Enter text into this widget (e.g. a TextField)."""
+        self.driver.enter_text(self.finder, text)
+        return self
+
+    @property
+    def text(self) -> str:
+        """Get the text of this widget."""
+        return self.driver.get_text(self.finder)
+
+
+class Flutter:
+    def __init__(self, device, local_port: int = 8181):
+        """
+        Initialize the Flutter plugin.
+        
+        Args:
+            device: A uiautomator2.Device instance.
+            local_port: The local port for port forwarding.
+        """
+        self.device = device
+        self.bridge = FlutterBridge(device, local_port=local_port)
+        self.driver = FlutterDriver(self.bridge)
+
+    def attach(self) -> "Flutter":
+        """
+        Establish connection to the Flutter VM service.
+        """
+        self.bridge.attach()
+        return self
+
+    def detach(self):
+        """
+        Close the connection to the Flutter VM service.
+        """
+        self.bridge.detach()
+
+    def find_by_key(self, key: str) -> FlutterElement:
+        """
+        Find widget by key.
+        """
+        finder = self.driver.find_by_key(key)
+        return FlutterElement(self.driver, finder)
+
+    def find_by_text(self, text: str) -> FlutterElement:
+        """
+        Find widget by text.
+        """
+        finder = self.driver.find_by_text(text)
+        return FlutterElement(self.driver, finder)
+
+    def find_by_type(self, widget_type: str) -> FlutterElement:
+        """
+        Find widget by type.
+        """
+        finder = self.driver.find_by_type(widget_type)
+        return FlutterElement(self.driver, finder)
+
+
+def with_flutter(local_port: int = 8181):
+    """
+    Decorator for test functions to handle Flutter bridge lifecycle.
+    Assumes the first argument of the test function (or 'self') has a 'd' attribute 
+    which is a uiautomator2 Device instance, and assigns a 'flutter' attribute to it.
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # Try to get the device instance from args
+            # Typically used on test methods, where args[0] is 'self', and self.d is the u2 device
+            test_obj = args[0] if args else None
+            if not test_obj or not hasattr(test_obj, "d"):
+                raise AttributeError("The decorated function must be a method of a class containing a uiautomator2 Device instance at 'self.d'.")
+            
+            # Instantiate Flutter plugin
+            flutter_plugin = Flutter(test_obj.d, local_port=local_port)
+            test_obj.flutter = flutter_plugin
+            
+            logger.info("Attaching Flutter driver...")
+            flutter_plugin.attach()
+            
+            try:
+                return func(*args, **kwargs)
+            finally:
+                logger.info("Detaching Flutter driver...")
+                flutter_plugin.detach()
+                
+        return wrapper
+    return decorator
