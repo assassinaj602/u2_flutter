@@ -76,6 +76,13 @@ u2_flutter/
 ├── examples/
 │   └── test_script.py        # Complete execution test scenario
 ├── tests/                    # Project unit tests
+├── docs/                     # User manuals
+│   ├── manual_en.md          # User manual (English)
+│   ├── manual_cn.md          # User manual (Chinese)
+│   └── development/          # Internal development docs
+│       ├── benchmark_results.md
+│       ├── capability_matrix.md
+│       └── fuzzing_validation_results.md
 ├── requirements.txt
 └── setup.py
 ```
@@ -142,7 +149,7 @@ class MyTestClass:
     def __init__(self):
         self.d = u2.connect() # uiautomator2 device instance at self.d
 
-    @with_flutter(local_port=8181)
+    @with_flutter
     def test_my_app(self):
         # Find a TextField by Key and enter text
         self.flutter.find_by_key("username_input").enter_text("testuser")
@@ -172,10 +179,10 @@ pip install -e D:\New folder (4)\u2_flutter
 
 ### 2. CLI Invocation
 
-To start a fuzzing exploration session with Flutter mode enabled, pass the `--flutter` flag:
+To start a fuzzing exploration session with Flutter mode enabled:
 
 ```bash
-python -m kea2.cli --apk path/to/your/app.apk --package-name your.package.name --flutter properties/your_test_file.py
+python -m kea2.cli --apk path/to/your/app.apk --package-name your.package.name properties/your_test_file.py
 ```
 
 ### 3. Hybrid Test Example
@@ -219,7 +226,7 @@ class TestHybridApp(unittest.TestCase):
 
 - [x] **Phase 1**: Standalone plugin with bridge, driver, and decorators.
 - [x] **Phase 2**: Align APIs and write comprehensive unit tests.
-- [x] **Phase 3**: Integrate `FlutterStaticChecker` and `FlutterScriptDriver` into **Kea2** ([Pull Request Submitted](https://github.com/assassinaj602/Kea2/pull/new/feature/flutter-integration)).
+- [x] **Phase 3**: Integrate `FlutterStaticChecker` and `FlutterScriptDriver` into **Kea2** (PR submitted, awaiting merge).
 
 ---
 
