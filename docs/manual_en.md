@@ -1,4 +1,4 @@
-﻿# User Manual
+# User Manual
 
 - [Advanced Feature 5: Support for Flutter Interaction](#advanced-feature-5-support-for-flutter-interaction)
 
