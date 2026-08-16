@@ -65,3 +65,15 @@ python -m unittest examples/basic_usage.py
 
 - Currently only supports Android debug builds
 - UI element location depends on widget key
+
+## Demo Video
+
+[![Phase 2 Demo: Native Precondition + Flutter Action](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://vimeo.com/1212730512)
+
+This video demonstrates the Phase 2 workflow:
+
+- ✅ Native precondition detection (`self.d(text="Open Flutter").exists`)
+- ✅ Flutter action execution (`self.flutter.find_by_key("submit_btn").tap()`)
+- ✅ Complete end-to-end workflow
+
+**Video Link:** https://vimeo.com/1212730512
