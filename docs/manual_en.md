@@ -68,12 +68,13 @@ python -m unittest examples/basic_usage.py
 
 ## Demo Video
 
-[![Phase 2 Demo: Native Precondition + Flutter Action](https://img.youtube.com/vi/VIDEO_ID/0.jpg)](https://vimeo.com/1212730512)
+[![Phase 2 Demo: Native Precondition + Flutter Action](https://img.youtube.com/vi/1212730512/0.jpg)](https://vimeo.com/1212730512)
 
 This video demonstrates the Phase 2 workflow:
 
 - ✅ Native precondition detection (`self.d(text="Open Flutter").exists`)
-- ✅ Flutter action execution (`self.flutter.find_by_key("submit_btn").tap()`)
-- ✅ Complete end-to-end workflow
+- ✅ Flutter action execution (`self.flutter.find_by_key("HomeListView").exists`)
+- ✅ Complete Phase 2 scenario: Native precondition triggers → Flutter action executes
 
 **Video Link:** https://vimeo.com/1212730512
+
