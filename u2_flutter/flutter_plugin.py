@@ -124,22 +124,19 @@ class Flutter:
         return self.driver.wait_for(finder, timeout_ms)
 
 
-def with_flutter(local_port: int = 8181):
+def with_flutter(func_or_port=None, local_port: int = 8181):
     """
     Decorator for test functions to handle Flutter bridge lifecycle.
-    Assumes the first argument of the test function (or 'self') has a 'd' attribute 
-    which is a uiautomator2 Device instance, and assigns a 'flutter' attribute to it.
+    Can be used as @with_flutter or @with_flutter(local_port=8181).
     """
-    def decorator(func):
+    if callable(func_or_port):
+        func = func_or_port
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Try to get the device instance from args
-            # Typically used on test methods, where args[0] is 'self', and self.d is the u2 device
             test_obj = args[0] if args else None
             if not test_obj or not hasattr(test_obj, "d"):
                 raise AttributeError("The decorated function must be a method of a class containing a uiautomator2 Device instance at 'self.d'.")
             
-            # Instantiate Flutter plugin
             flutter_plugin = Flutter(test_obj.d, local_port=local_port)
             test_obj.flutter = flutter_plugin
             
@@ -151,6 +148,27 @@ def with_flutter(local_port: int = 8181):
             finally:
                 logger.info("Detaching Flutter driver...")
                 flutter_plugin.detach()
-                
         return wrapper
-    return decorator
+    else:
+        port = func_or_port if isinstance(func_or_port, int) else local_port
+        def decorator(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                test_obj = args[0] if args else None
+                if not test_obj or not hasattr(test_obj, "d"):
+                    raise AttributeError("The decorated function must be a method of a class containing a uiautomator2 Device instance at 'self.d'.")
+                
+                flutter_plugin = Flutter(test_obj.d, local_port=port)
+                test_obj.flutter = flutter_plugin
+                
+                logger.info("Attaching Flutter driver...")
+                flutter_plugin.attach()
+                
+                try:
+                    return func(*args, **kwargs)
+                finally:
+                    logger.info("Detaching Flutter driver...")
+                    flutter_plugin.detach()
+            return wrapper
+        return decorator
+
