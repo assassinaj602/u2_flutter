@@ -135,7 +135,8 @@ def with_flutter(func_or_port=None, local_port: int = 8181):
         def wrapper(*args, **kwargs):
             test_obj = args[0] if args else None
             if not test_obj or not hasattr(test_obj, "d"):
-                raise AttributeError("The decorated function must be a method of a class containing a uiautomator2 Device instance at 'self.d'.")
+                logger.info("No uiautomator2 device at 'self.d'; skipping Flutter driver attach for standalone unittest.")
+                return func(*args, **kwargs)
             
             flutter_plugin = Flutter(test_obj.d, local_port=local_port)
             test_obj.flutter = flutter_plugin
@@ -156,7 +157,8 @@ def with_flutter(func_or_port=None, local_port: int = 8181):
             def wrapper(*args, **kwargs):
                 test_obj = args[0] if args else None
                 if not test_obj or not hasattr(test_obj, "d"):
-                    raise AttributeError("The decorated function must be a method of a class containing a uiautomator2 Device instance at 'self.d'.")
+                    logger.info("No uiautomator2 device at 'self.d'; skipping Flutter driver attach for standalone unittest.")
+                    return func(*args, **kwargs)
                 
                 flutter_plugin = Flutter(test_obj.d, local_port=port)
                 test_obj.flutter = flutter_plugin
@@ -171,4 +173,5 @@ def with_flutter(func_or_port=None, local_port: int = 8181):
                     flutter_plugin.detach()
             return wrapper
         return decorator
+
 
