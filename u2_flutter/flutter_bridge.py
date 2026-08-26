@@ -36,10 +36,10 @@ class FlutterBridge:
         logger.info("Scanning logcat for Dart VM Service URI...")
         logcat_lines = self.device.shell("logcat -d").output
         
-        # Updated regex to capture both port AND optional auth token path
-        # Example: http://127.0.0.1:42769/aBcDeFg1234=/
+        # Updated regex to capture port and optional auth token path across various Flutter versions
         pattern = re.compile(
-            r"(?:The Dart VM service is listening on|Observatory listening on)\s+http://127.0.0.1:(\d+)(?:/([a-zA-Z0-9_\-=]+)/?)?"
+            r"(?:The Dart VM service is listening on|Observatory listening on|Flutter VM service|listening on)\s+http://127\.0\.0\.1:(\d+)(?:/([a-zA-Z0-9_\-=]+)/?)?",
+            re.IGNORECASE
         )
         
         for line in reversed(logcat_lines.splitlines()):
@@ -74,14 +74,19 @@ class FlutterBridge:
             except Exception as e:
                 logger.debug(f"Error removing port forwarding: {e}")
 
-    def attach(self) -> str:
+    def attach(self) -> Optional[str]:
         """
         Finds the VM service port and auth token, forwards it, and connects via WebSocket.
         
         Returns:
-            str: The WebSocket URL.
+            Optional[str]: The WebSocket URL or None if not found/failed.
         """
-        self.remote_port, self.auth_token = self.find_observatory_info()
+        try:
+            self.remote_port, self.auth_token = self.find_observatory_info()
+        except RuntimeError as e:
+            logger.warning(f"Could not attach Dart VM service: {e}")
+            return None
+
         self.forward_port(self.remote_port)
         
         # Append auth token to ws URL if present
@@ -105,7 +110,9 @@ class FlutterBridge:
                 time.sleep(1)
                 
         self.remove_forward()
-        raise ConnectionError("Failed to connect to Dart VM Service WebSocket after multiple attempts.")
+        logger.warning("Failed to connect to Dart VM Service WebSocket after multiple attempts.")
+        return None
+
 
     def detach(self):
         """
