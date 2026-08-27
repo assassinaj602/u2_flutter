@@ -68,13 +68,15 @@ python -m unittest examples/basic_usage.py
 
 ## Demo Video
 
-[![Phase 2 Demo: Native Precondition + Flutter Action](https://img.youtube.com/vi/1212730512/0.jpg)](https://vimeo.com/1212730512)
+[![Phase 2 Demo: Native Precondition + Flutter Action](https://img.youtube.com/vi/1221700543/0.jpg)](https://vimeo.com/1221700543)
 
 This video demonstrates the Phase 2 workflow:
 
-- ✅ Native precondition detection (`self.d(text="Open Flutter").exists`)
-- ✅ Flutter action execution (`self.flutter.find_by_key("HomeListView").exists`)
-- ✅ Complete Phase 2 scenario: Native precondition triggers → Flutter action executes
+- ✅ Native precondition detection (`3 Checkable properties`)
+- ✅ Flutter driver connecting to Dart VM Service
+- ✅ Flutter actions executing successfully
+- ✅ Complete Phase 2 workflow on a real wired device
 
-**Video Link:** https://vimeo.com/1212730512
+**Video Link:** https://vimeo.com/1221700543
+
 

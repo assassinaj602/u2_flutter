@@ -68,13 +68,15 @@ python -m unittest examples/basic_usage.py
 
 ## 演示视频
 
-[![Phase 2 演示：原生前置条件 + Flutter 操作](https://img.youtube.com/vi/1212730512/0.jpg)](https://vimeo.com/1212730512)
+[![Phase 2 演示：原生前置条件 + Flutter 操作](https://img.youtube.com/vi/1221700543/0.jpg)](https://vimeo.com/1221700543)
 
 此视频展示 Phase 2 工作流程：
 
-- ✅ 原生前置条件检测 (`self.d(text="Open Flutter").exists`)
-- ✅ Flutter 操作执行 (`self.flutter.find_by_key("HomeListView").exists`)
-- ✅ 完整的 Phase 2 场景：原生前置条件触发 → Flutter 操作执行
+- ✅ 原生前置条件检测 (`3 Checkable properties`)
+- ✅ Flutter 驱动连接 Dart VM Service
+- ✅ Flutter 操作成功执行
+- ✅ 完整的 Phase 2 工作流程（真实有线设备）
 
-**视频链接：** https://vimeo.com/1212730512
+**视频链接：** https://vimeo.com/1221700543
+
 
